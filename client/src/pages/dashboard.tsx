@@ -5,15 +5,27 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import StatsCard from "@/components/stats-card";
 import ActivityChart from "@/components/activity-chart";
 import CreateGroupModal from "@/components/create-group-modal";
-import { Construction, Gauge, Mountain, Crown, Trophy, Medal } from "lucide-react";
+import { Construction, Gauge, Mountain, Crown } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
+import type { User, Group, Activity } from "@shared/schema";
+
+interface StatsData {
+  weeklyDistance: number;
+  avgSpeed: number;
+  elevation: number;
+  weeklyData: Array<{
+    week: string;
+    distance: number;
+    speed: number;
+  }>;
+}
 
 export default function Dashboard() {
-  const { data: user } = useQuery({ queryKey: ["/api/user"] });
-  const { data: stats } = useQuery({ queryKey: ["/api/stats"] });
-  const { data: groups = [] } = useQuery({ queryKey: ["/api/groups"] });
-  const { data: activities = [] } = useQuery({ queryKey: ["/api/activities"] });
+  const { data: user } = useQuery<User>({ queryKey: ["/api/user"] });
+  const { data: stats } = useQuery<StatsData>({ queryKey: ["/api/stats"] });
+  const { data: groups = [] } = useQuery<Group[]>({ queryKey: ["/api/groups"] });
+  const { data: activities = [] } = useQuery<Activity[]>({ queryKey: ["/api/activities"] });
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -136,7 +148,7 @@ export default function Dashboard() {
                         <h4 className="font-medium text-gray-900" data-testid="text-group-name">{group.name}</h4>
                         <p className="text-sm text-gray-600" data-testid="text-group-stats">새 그룹 • 이번 주 0km</p>
                       </div>
-                      <Crown className="h-4 w-4 text-yellow-500" title="관리자" />
+                      <Crown className="h-4 w-4 text-yellow-500" />
                     </div>
                   ))}
                 </div>

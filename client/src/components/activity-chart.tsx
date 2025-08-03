@@ -24,8 +24,19 @@ ChartJS.register(
   Filler
 );
 
+interface StatsData {
+  weeklyDistance: number;
+  avgSpeed: number;
+  elevation: number;
+  weeklyData: Array<{
+    week: string;
+    distance: number;
+    speed: number;
+  }>;
+}
+
 export default function ActivityChart() {
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading } = useQuery<StatsData>({
     queryKey: ["/api/stats"],
   });
 
@@ -60,11 +71,11 @@ export default function ActivityChart() {
   }
 
   const chartData = {
-    labels: stats.weeklyData.map((week: any) => week.week),
+    labels: stats.weeklyData.map((week) => week.week),
     datasets: [
       {
         label: "거리 (km)",
-        data: stats.weeklyData.map((week: any) => week.distance),
+        data: stats.weeklyData.map((week) => week.distance),
         borderColor: "hsl(14, 98%, 49%)",
         backgroundColor: "rgba(252, 76, 2, 0.1)",
         tension: 0.4,
@@ -72,7 +83,7 @@ export default function ActivityChart() {
       },
       {
         label: "평균 속도 (km/h)",
-        data: stats.weeklyData.map((week: any) => week.speed),
+        data: stats.weeklyData.map((week) => week.speed),
         borderColor: "hsl(142, 76%, 36%)",
         backgroundColor: "rgba(56, 161, 105, 0.1)",
         tension: 0.4,

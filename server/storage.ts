@@ -15,6 +15,7 @@ import { randomUUID } from "crypto";
 export interface IStorage {
   // User methods
   getUser(id: string): Promise<User | undefined>;
+  getUsers(): Promise<User[]>;
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
@@ -77,6 +78,10 @@ export class MemStorage implements IStorage {
     return this.users.get(id);
   }
 
+  async getUsers(): Promise<User[]> {
+    return Array.from(this.users.values());
+  }
+
   async getUserByUsername(username: string): Promise<User | undefined> {
     return Array.from(this.users.values()).find(user => user.username === username);
   }
@@ -88,7 +93,10 @@ export class MemStorage implements IStorage {
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
     const user: User = { 
-      ...insertUser, 
+      ...insertUser,
+      avatar: insertUser.avatar || null,
+      stravaConnected: insertUser.stravaConnected || false,
+      stravaAccessToken: insertUser.stravaAccessToken || null,
       id, 
       createdAt: new Date() 
     };
@@ -125,7 +133,10 @@ export class MemStorage implements IStorage {
   async createGroup(insertGroup: InsertGroup): Promise<Group> {
     const id = randomUUID();
     const group: Group = { 
-      ...insertGroup, 
+      ...insertGroup,
+      avatar: insertGroup.avatar || null,
+      description: insertGroup.description || null,
+      visibility: insertGroup.visibility || "public",
       id, 
       createdAt: new Date() 
     };
@@ -187,7 +198,8 @@ export class MemStorage implements IStorage {
   async createGroupMembership(insertMembership: InsertGroupMembership): Promise<GroupMembership> {
     const id = randomUUID();
     const membership: GroupMembership = { 
-      ...insertMembership, 
+      ...insertMembership,
+      role: insertMembership.role || "member",
       id, 
       joinedAt: new Date() 
     };
@@ -226,7 +238,10 @@ export class MemStorage implements IStorage {
   async createActivity(insertActivity: InsertActivity): Promise<Activity> {
     const id = randomUUID();
     const activity: Activity = { 
-      ...insertActivity, 
+      ...insertActivity,
+      elevationGain: insertActivity.elevationGain || 0,
+      maxSpeed: insertActivity.maxSpeed || null,
+      activityType: insertActivity.activityType || "ride",
       id, 
       createdAt: new Date() 
     };
@@ -237,7 +252,7 @@ export class MemStorage implements IStorage {
   async getGroupActivities(groupId: string): Promise<(GroupActivity & { user: User })[]> {
     const activities = Array.from(this.groupActivities.values())
       .filter(activity => activity.groupId === groupId)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
     
     return activities
       .map(activity => {

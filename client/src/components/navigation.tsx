@@ -5,11 +5,12 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Link, useLocation } from "wouter";
 import { Activity, BarChart3, Users, Home } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import type { User } from "@shared/schema";
 
 export default function Navigation() {
   const [location] = useLocation();
 
-  const { data: user } = useQuery({
+  const { data: user } = useQuery<User>({
     queryKey: ["/api/user"],
   });
 
@@ -74,7 +75,7 @@ export default function Navigation() {
               <Avatar className="h-8 w-8">
                 <AvatarImage src={user?.avatar || ""} />
                 <AvatarFallback data-testid="text-user-initials">
-                  {user?.name?.split(" ").map(n => n[0]).join("") || "U"}
+                  {user?.name?.split(" ").map((n: string) => n[0]).join("") || "U"}
                 </AvatarFallback>
               </Avatar>
               <span className="text-sm font-medium text-gray-700" data-testid="text-username">

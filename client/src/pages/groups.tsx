@@ -5,9 +5,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import CreateGroupModal from "@/components/create-group-modal";
 import { Button } from "@/components/ui/button";
 import { Crown, Users, TrendingUp, Plus } from "lucide-react";
+import type { Group } from "@shared/schema";
 
 export default function Groups() {
-  const { data: groups = [], isLoading } = useQuery({ queryKey: ["/api/groups"] });
+  const { data: groups = [], isLoading } = useQuery<Group[]>({ queryKey: ["/api/groups"] });
 
   if (isLoading) {
     return (
@@ -64,7 +65,7 @@ export default function Groups() {
                         <Badge variant="secondary" data-testid="text-group-visibility">
                           {group.visibility === "public" ? "공개" : group.visibility === "private" ? "비공개" : "초대만"}
                         </Badge>
-                        <Crown className="h-4 w-4 text-yellow-500" title="관리자" />
+                        <Crown className="h-4 w-4 text-yellow-500" />
                       </div>
                     </div>
                   </div>
