@@ -7,6 +7,7 @@ import { Activity, BarChart3, Users, Home } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
 import LanguageToggle from "@/components/language-toggle";
+import UnitsToggle from "@/components/units-toggle";
 import type { User } from "@shared/schema";
 
 export default function Navigation() {
@@ -19,12 +20,28 @@ export default function Navigation() {
 
   const connectStravaMutation = useMutation({
     mutationFn: () => apiRequest("POST", "/api/strava/connect"),
-    onSuccess: () => {
-      toast({ title: "Strava 연결 성공", description: "Strava와 성공적으로 연결되었습니다." });
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+    onSuccess: (data: any) => {
+      if (data.authUrl) {
+        window.open(data.authUrl, '_blank', 'width=600,height=600');
+      }
     },
     onError: () => {
       toast({ title: "연결 실패", description: "Strava 연결에 실패했습니다.", variant: "destructive" });
+    },
+  });
+
+  const syncStravaMutation = useMutation({
+    mutationFn: () => apiRequest("POST", "/api/strava/sync"),
+    onSuccess: (data: any) => {
+      toast({ 
+        title: "동기화 완료", 
+        description: `${data.count}개의 활동이 동기화되었습니다.` 
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/activities"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+    },
+    onError: () => {
+      toast({ title: "동기화 실패", description: "활동 동기화에 실패했습니다.", variant: "destructive" });
     },
   });
 
@@ -65,16 +82,29 @@ export default function Navigation() {
             </nav>
           </div>
           <div className="flex items-center space-x-4">
+            <UnitsToggle />
             <LanguageToggle />
-            <Button
-              onClick={() => connectStravaMutation.mutate()}
-              disabled={connectStravaMutation.isPending || user?.stravaConnected}
-              className="bg-strava-orange text-white hover:bg-orange-600"
-              data-testid="button-strava-connect"
-            >
-              <Activity className="h-4 w-4 mr-2" />
-              {user?.stravaConnected ? t("strava.connected") : t("strava.connect")}
-            </Button>
+            {user?.stravaConnected ? (
+              <Button
+                onClick={() => syncStravaMutation.mutate()}
+                disabled={syncStravaMutation.isPending}
+                className="bg-green-600 text-white hover:bg-green-700"
+                data-testid="button-strava-sync"
+              >
+                <Activity className="h-4 w-4 mr-2" />
+                {syncStravaMutation.isPending ? "Syncing..." : "Sync Strava"}
+              </Button>
+            ) : (
+              <Button
+                onClick={() => connectStravaMutation.mutate()}
+                disabled={connectStravaMutation.isPending}
+                className="bg-strava-orange text-white hover:bg-orange-600"
+                data-testid="button-strava-connect"
+              >
+                <Activity className="h-4 w-4 mr-2" />
+                {connectStravaMutation.isPending ? "Connecting..." : t("strava.connect")}
+              </Button>
+            )}
             <div className="flex items-center space-x-2">
               <Avatar className="h-8 w-8">
                 <AvatarImage src={user?.avatar || ""} />

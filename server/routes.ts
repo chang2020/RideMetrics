@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertGroupSchema, insertActivitySchema, insertGroupActivitySchema } from "@shared/schema";
+import { stravaAPI } from "./strava-api";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get current user (mock for now)
@@ -177,24 +178,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Connect to Strava (mock endpoint)
-  app.post("/api/strava/connect", async (req, res) => {
+  // Start Strava OAuth flow
+  app.get("/api/strava/auth", async (req, res) => {
     try {
+      const authUrl = stravaAPI.getAuthorizationUrl();
+      res.json({ authUrl });
+    } catch (error) {
+      console.error("Strava auth error:", error);
+      res.status(500).json({ message: "Failed to generate auth URL" });
+    }
+  });
+
+  // Handle Strava OAuth callback
+  app.get("/api/strava/callback", async (req, res) => {
+    try {
+      const { code } = req.query;
+      if (!code || typeof code !== 'string') {
+        return res.status(400).json({ message: "Missing authorization code" });
+      }
+
+      // Exchange code for tokens
+      const tokens = await stravaAPI.exchangeCodeForTokens(code);
+      
+      // Get athlete info
+      const athlete = await stravaAPI.getAthlete(tokens.access_token);
+
+      // Update user with Strava data
       const users = await storage.getUsers();
       const user = users[0];
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
 
-      // Mock Strava connection
       await storage.updateUser(user.id, {
         stravaConnected: true,
-        stravaAccessToken: "mock_token",
+        stravaId: athlete.id,
+        stravaAccessToken: tokens.access_token,
+        stravaRefreshToken: tokens.refresh_token,
+        stravaTokenExpiry: tokens.expires_at,
+        name: `${athlete.firstname} ${athlete.lastname}`,
+        avatar: athlete.profile
       });
 
-      res.json({ message: "Strava connected successfully" });
+      // Redirect to dashboard
+      res.redirect('/?strava=connected');
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      console.error("Strava callback error:", error);
+      res.redirect('/?strava=error');
+    }
+  });
+
+  // Manual Strava connect
+  app.post("/api/strava/connect", async (req, res) => {
+    try {
+      const authUrl = stravaAPI.getAuthorizationUrl();
+      res.json({ authUrl });
+    } catch (error) {
+      console.error("Strava connect error:", error);
+      res.status(500).json({ message: "Failed to initiate Strava connection" });
+    }
+  });
+
+  // Sync activities from Strava
+  app.post("/api/strava/sync", async (req, res) => {
+    try {
+      const users = await storage.getUsers();
+      const user = users[0];
+      if (!user || !user.stravaConnected || !user.stravaAccessToken) {
+        return res.status(400).json({ message: "Strava not connected" });
+      }
+
+      // Get activities from Strava
+      const stravaActivities = await stravaAPI.getActivities(user.stravaAccessToken);
+      
+      // Convert and store activities
+      const activities = stravaActivities
+        .filter(activity => activity.type === 'Ride') // Only cycling activities
+        .map(activity => ({
+          userId: user.id,
+          title: activity.name,
+          distance: Math.round(activity.distance), // meters
+          duration: activity.moving_time, // seconds
+          elevationGain: Math.round(activity.total_elevation_gain || 0), // meters
+          averageSpeed: Math.round(activity.average_speed * 36), // m/s to km/h * 10
+          maxSpeed: Math.round((activity.max_speed || 0) * 36), // m/s to km/h * 10
+          activityType: "ride",
+          startTime: new Date(activity.start_date)
+        }));
+
+      // Store activities
+      for (const activity of activities) {
+        await storage.createActivity(activity);
+      }
+
+      res.json({ 
+        message: "Activities synced successfully", 
+        count: activities.length 
+      });
+    } catch (error) {
+      console.error("Strava sync error:", error);
+      res.status(500).json({ message: "Failed to sync activities" });
     }
   });
 

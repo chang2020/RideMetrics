@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { Line } from "react-chartjs-2";
 import { useLanguage } from "@/lib/i18n";
+import { useUnits } from "@/lib/units";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -38,6 +39,7 @@ interface StatsData {
 
 export default function ActivityChart() {
   const { t } = useLanguage();
+  const { convertDistance, getDistanceLabel, convertSpeed, getSpeedLabel } = useUnits();
   const { data: stats, isLoading } = useQuery<StatsData>({
     queryKey: ["/api/stats"],
   });
@@ -76,16 +78,16 @@ export default function ActivityChart() {
     labels: stats.weeklyData.map((week) => week.week),
     datasets: [
       {
-        label: t("stats.distance"),
-        data: stats.weeklyData.map((week) => week.distance),
+        label: `${t("stats.distance")} (${getDistanceLabel()})`,
+        data: stats.weeklyData.map((week) => convertDistance(week.distance * 1000)),
         borderColor: "hsl(14, 98%, 49%)",
         backgroundColor: "rgba(252, 76, 2, 0.1)",
         tension: 0.4,
         fill: true,
       },
       {
-        label: t("stats.speed"),
-        data: stats.weeklyData.map((week) => week.speed),
+        label: `${t("stats.speed")} (${getSpeedLabel()})`,
+        data: stats.weeklyData.map((week) => convertSpeed(week.speed / 3.6)),
         borderColor: "hsl(142, 76%, 36%)",
         backgroundColor: "rgba(56, 161, 105, 0.1)",
         tension: 0.4,
@@ -110,7 +112,7 @@ export default function ActivityChart() {
         position: "left" as const,
         title: {
           display: true,
-          text: t("stats.distance"),
+          text: `${t("stats.distance")} (${getDistanceLabel()})`,
         },
       },
       y1: {
@@ -119,7 +121,7 @@ export default function ActivityChart() {
         position: "right" as const,
         title: {
           display: true,
-          text: t("stats.speed"),
+          text: `${t("stats.speed")} (${getSpeedLabel()})`,
         },
         grid: {
           drawOnChartArea: false,

@@ -10,7 +10,10 @@ export const users = pgTable("users", {
   name: text("name").notNull(),
   avatar: text("avatar"),
   stravaConnected: boolean("strava_connected").default(false),
+  stravaId: integer("strava_id"),
   stravaAccessToken: text("strava_access_token"),
+  stravaRefreshToken: text("strava_refresh_token"),
+  stravaTokenExpiry: integer("strava_token_expiry"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

@@ -9,6 +9,7 @@ import { Construction, Gauge, Mountain, Crown } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ko, enUS } from "date-fns/locale";
 import { useLanguage } from "@/lib/i18n";
+import { useUnits } from "@/lib/units";
 import type { User, Group, Activity } from "@shared/schema";
 
 interface StatsData {
@@ -24,6 +25,7 @@ interface StatsData {
 
 export default function Dashboard() {
   const { t, language } = useLanguage();
+  const { convertDistance, getDistanceLabel, convertSpeed, getSpeedLabel } = useUnits();
   const { data: user } = useQuery<User>({ queryKey: ["/api/user"] });
   const { data: stats } = useQuery<StatsData>({ queryKey: ["/api/stats"] });
   const { data: groups = [] } = useQuery<Group[]>({ queryKey: ["/api/groups"] });
@@ -54,15 +56,15 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <StatsCard
               title={t("dashboard.weeklyDistance")}
-              value={`${stats?.weeklyDistance || 0}km`}
+              value={`${convertDistance((stats?.weeklyDistance || 0) * 1000).toFixed(1)}${getDistanceLabel()}`}
               change={stats?.weeklyDistance ? "+12%" : undefined}
               icon={Construction}
               iconColor="bg-blue-500"
             />
             <StatsCard
               title={t("dashboard.avgSpeed")}
-              value={`${stats?.avgSpeed || 0}km/h`}
-              change={stats?.avgSpeed ? "+2.1km/h" : undefined}
+              value={`${convertSpeed((stats?.avgSpeed || 0) / 3.6).toFixed(1)}${getSpeedLabel()}`}
+              change={stats?.avgSpeed ? "+2.1" + getSpeedLabel() : undefined}
               icon={Gauge}
               iconColor="bg-green-500"
             />
