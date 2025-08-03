@@ -7,7 +7,8 @@ import ActivityChart from "@/components/activity-chart";
 import CreateGroupModal from "@/components/create-group-modal";
 import { Construction, Gauge, Mountain, Crown } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { ko } from "date-fns/locale";
+import { ko, enUS } from "date-fns/locale";
+import { useLanguage } from "@/lib/i18n";
 import type { User, Group, Activity } from "@shared/schema";
 
 interface StatsData {
@@ -22,10 +23,13 @@ interface StatsData {
 }
 
 export default function Dashboard() {
+  const { t, language } = useLanguage();
   const { data: user } = useQuery<User>({ queryKey: ["/api/user"] });
   const { data: stats } = useQuery<StatsData>({ queryKey: ["/api/stats"] });
   const { data: groups = [] } = useQuery<Group[]>({ queryKey: ["/api/groups"] });
   const { data: activities = [] } = useQuery<Activity[]>({ queryKey: ["/api/activities"] });
+
+  const dateLocale = language === "ko" ? ko : enUS;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -35,8 +39,8 @@ export default function Dashboard() {
           <div className="bg-gradient-to-r from-strava-orange to-orange-600 rounded-lg p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold mb-2">Strava와 연결하여 시작하세요!</h2>
-                <p className="text-orange-100">라이딩 데이터를 자동으로 동기화하고 그룹과 함께 성과를 공유하세요.</p>
+                <h2 className="text-xl font-semibold mb-2">{t("dashboard.connectStrava.title")}</h2>
+                <p className="text-orange-100">{t("dashboard.connectStrava.description")}</p>
               </div>
             </div>
           </div>
@@ -49,21 +53,21 @@ export default function Dashboard() {
           {/* Quick Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <StatsCard
-              title="이번 주 거리"
+              title={t("dashboard.weeklyDistance")}
               value={`${stats?.weeklyDistance || 0}km`}
               change={stats?.weeklyDistance ? "+12%" : undefined}
               icon={Construction}
               iconColor="bg-blue-500"
             />
             <StatsCard
-              title="평균 속도"
+              title={t("dashboard.avgSpeed")}
               value={`${stats?.avgSpeed || 0}km/h`}
               change={stats?.avgSpeed ? "+2.1km/h" : undefined}
               icon={Gauge}
               iconColor="bg-green-500"
             />
             <StatsCard
-              title="총 고도 상승"
+              title={t("dashboard.elevation")}
               value={`${stats?.elevation || 0}m`}
               change={stats?.elevation ? "+18%" : undefined}
               icon={Mountain}
@@ -77,13 +81,13 @@ export default function Dashboard() {
           {/* Recent Activities */}
           <Card>
             <CardHeader>
-              <CardTitle>최근 활동</CardTitle>
+              <CardTitle>{t("dashboard.recentActivities")}</CardTitle>
             </CardHeader>
             <CardContent>
               {activities.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-gray-500">아직 활동이 없습니다.</p>
-                  <p className="text-sm text-gray-400 mt-2">첫 번째 라이딩을 기록해보세요!</p>
+                  <p className="text-gray-500">{t("dashboard.noActivities")}</p>
+                  <p className="text-sm text-gray-400 mt-2">{t("dashboard.firstRide")}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -95,16 +99,16 @@ export default function Dashboard() {
                       <div className="flex-1">
                         <h4 className="font-medium text-gray-900" data-testid="text-activity-title">{activity.title}</h4>
                         <p className="text-sm text-gray-600" data-testid="text-activity-details">
-                          {formatDistanceToNow(new Date(activity.startTime), { addSuffix: true, locale: ko })} • 
+                          {formatDistanceToNow(new Date(activity.startTime), { addSuffix: true, locale: dateLocale })} • 
                           {(activity.distance / 1000).toFixed(1)}km • 
-                          {Math.floor(activity.duration / 60)}분
+                          {Math.floor(activity.duration / 60)}{language === "ko" ? "분" : "min"}
                         </p>
                       </div>
                       <div className="text-right">
                         <p className="font-medium text-gray-900" data-testid="text-activity-speed">
                           {(activity.averageSpeed / 10).toFixed(1)}km/h
                         </p>
-                        <p className="text-sm text-gray-600">평균 속도</p>
+                        <p className="text-sm text-gray-600">{t("stats.avgSpeed")}</p>
                       </div>
                     </div>
                   ))}
@@ -119,8 +123,8 @@ export default function Dashboard() {
           {/* Create Group CTA */}
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">새 그룹 만들기</h3>
-              <p className="text-sm text-gray-600 mb-4">친구들과 함께 라이딩하고 성과를 공유해보세요!</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{t("dashboard.createGroup")}</h3>
+              <p className="text-sm text-gray-600 mb-4">{t("dashboard.createGroupDescription")}</p>
               <CreateGroupModal />
             </CardContent>
           </Card>
@@ -128,14 +132,14 @@ export default function Dashboard() {
           {/* My Groups */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>내 그룹</CardTitle>
-              <Badge variant="secondary" data-testid="text-groups-count">{groups.length}개</Badge>
+              <CardTitle>{t("dashboard.myGroups")}</CardTitle>
+              <Badge variant="secondary" data-testid="text-groups-count">{groups.length}{language === "ko" ? "개" : ""}</Badge>
             </CardHeader>
             <CardContent>
               {groups.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-gray-500">아직 그룹에 가입하지 않았습니다.</p>
-                  <p className="text-sm text-gray-400 mt-2">첫 번째 그룹을 만들어보세요!</p>
+                  <p className="text-gray-500">{t("dashboard.noGroups")}</p>
+                  <p className="text-sm text-gray-400 mt-2">{t("dashboard.firstGroup")}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -146,7 +150,7 @@ export default function Dashboard() {
                       </div>
                       <div className="flex-1">
                         <h4 className="font-medium text-gray-900" data-testid="text-group-name">{group.name}</h4>
-                        <p className="text-sm text-gray-600" data-testid="text-group-stats">새 그룹 • 이번 주 0km</p>
+                        <p className="text-sm text-gray-600" data-testid="text-group-stats">{t("general.newGroup")} • {t("groups.thisWeek")} 0km</p>
                       </div>
                       <Crown className="h-4 w-4 text-yellow-500" />
                     </div>
@@ -159,9 +163,9 @@ export default function Dashboard() {
           {/* Group Leaderboard */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>그룹 순위</CardTitle>
+              <CardTitle>{t("dashboard.groupLeaderboard")}</CardTitle>
               <select className="text-sm border-gray-300 rounded-md" data-testid="select-leaderboard-group">
-                <option>그룹을 선택하세요</option>
+                <option>{t("dashboard.selectGroup")}</option>
                 {groups.map((group: any) => (
                   <option key={group.id} value={group.id}>{group.name}</option>
                 ))}
@@ -169,7 +173,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-center py-8">
-                <p className="text-gray-500">그룹 순위를 보려면 그룹을 선택하세요.</p>
+                <p className="text-gray-500">{t("dashboard.selectGroupPrompt")}</p>
               </div>
             </CardContent>
           </Card>
@@ -177,12 +181,12 @@ export default function Dashboard() {
           {/* Group Activity Feed */}
           <Card>
             <CardHeader>
-              <CardTitle>그룹 활동</CardTitle>
+              <CardTitle>{t("dashboard.groupActivity")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-center py-8">
-                <p className="text-gray-500">아직 그룹 활동이 없습니다.</p>
-                <p className="text-sm text-gray-400 mt-2">그룹에 가입하고 활동을 시작해보세요!</p>
+                <p className="text-gray-500">{t("dashboard.noGroupActivity")}</p>
+                <p className="text-sm text-gray-400 mt-2">{t("dashboard.joinAndStart")}</p>
               </div>
             </CardContent>
           </Card>

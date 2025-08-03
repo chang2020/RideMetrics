@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { Line } from "react-chartjs-2";
+import { useLanguage } from "@/lib/i18n";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -36,6 +37,7 @@ interface StatsData {
 }
 
 export default function ActivityChart() {
+  const { t } = useLanguage();
   const { data: stats, isLoading } = useQuery<StatsData>({
     queryKey: ["/api/stats"],
   });
@@ -44,11 +46,11 @@ export default function ActivityChart() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>주간 성과</CardTitle>
+          <CardTitle>{t("dashboard.weeklyPerformance")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-64 flex items-center justify-center">
-            <p className="text-gray-500">차트를 로딩 중...</p>
+            <p className="text-gray-500">{t("stats.loading")}</p>
           </div>
         </CardContent>
       </Card>
@@ -59,11 +61,11 @@ export default function ActivityChart() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>주간 성과</CardTitle>
+          <CardTitle>{t("dashboard.weeklyPerformance")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-64 flex items-center justify-center">
-            <p className="text-gray-500">활동 데이터가 없습니다. 첫 번째 라이딩을 시작해보세요!</p>
+            <p className="text-gray-500">{t("stats.noData")}</p>
           </div>
         </CardContent>
       </Card>
@@ -74,7 +76,7 @@ export default function ActivityChart() {
     labels: stats.weeklyData.map((week) => week.week),
     datasets: [
       {
-        label: "거리 (km)",
+        label: t("stats.distance"),
         data: stats.weeklyData.map((week) => week.distance),
         borderColor: "hsl(14, 98%, 49%)",
         backgroundColor: "rgba(252, 76, 2, 0.1)",
@@ -82,7 +84,7 @@ export default function ActivityChart() {
         fill: true,
       },
       {
-        label: "평균 속도 (km/h)",
+        label: t("stats.speed"),
         data: stats.weeklyData.map((week) => week.speed),
         borderColor: "hsl(142, 76%, 36%)",
         backgroundColor: "rgba(56, 161, 105, 0.1)",
@@ -108,7 +110,7 @@ export default function ActivityChart() {
         position: "left" as const,
         title: {
           display: true,
-          text: "거리 (km)",
+          text: t("stats.distance"),
         },
       },
       y1: {
@@ -117,7 +119,7 @@ export default function ActivityChart() {
         position: "right" as const,
         title: {
           display: true,
-          text: "속도 (km/h)",
+          text: t("stats.speed"),
         },
         grid: {
           drawOnChartArea: false,
@@ -129,11 +131,11 @@ export default function ActivityChart() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>주간 성과</CardTitle>
+        <CardTitle>{t("dashboard.weeklyPerformance")}</CardTitle>
         <select className="text-sm border-gray-300 rounded-md" data-testid="select-time-period">
-          <option>지난 4주</option>
-          <option>지난 8주</option>
-          <option>지난 3개월</option>
+          <option>{t("stats.weeklyData")}</option>
+          <option>Last 8 weeks</option>
+          <option>Last 3 months</option>
         </select>
       </CardHeader>
       <CardContent>

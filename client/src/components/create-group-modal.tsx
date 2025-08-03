@@ -30,15 +30,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { toast } from "@/hooks/use-toast";
+import { useLanguage } from "@/lib/i18n";
 import { Plus } from "lucide-react";
-
-const createGroupSchema = z.object({
-  name: z.string().min(1, "그룹 이름을 입력해주세요").max(50, "그룹 이름은 50자 이하여야 합니다"),
-  description: z.string().max(500, "설명은 500자 이하여야 합니다").optional(),
-  visibility: z.enum(["public", "private", "invite_only"]),
-});
-
-type CreateGroupForm = z.infer<typeof createGroupSchema>;
 
 interface CreateGroupModalProps {
   children?: React.ReactNode;
@@ -46,6 +39,15 @@ interface CreateGroupModalProps {
 
 export default function CreateGroupModal({ children }: CreateGroupModalProps) {
   const [open, setOpen] = useState(false);
+  const { t } = useLanguage();
+
+  const createGroupSchema = z.object({
+    name: z.string().min(1, "Group name is required").max(50, "Group name must be under 50 characters"),
+    description: z.string().max(500, "Description must be under 500 characters").optional(),
+    visibility: z.enum(["public", "private", "invite_only"]),
+  });
+
+  type CreateGroupForm = z.infer<typeof createGroupSchema>;
 
   const form = useForm<CreateGroupForm>({
     resolver: zodResolver(createGroupSchema),
@@ -79,13 +81,13 @@ export default function CreateGroupModal({ children }: CreateGroupModalProps) {
         {children || (
           <Button className="w-full bg-strava-orange text-white hover:bg-orange-600" data-testid="button-create-group">
             <Plus className="h-4 w-4 mr-2" />
-            그룹 만들기
+            {t("groups.createGroup")}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>새 그룹 만들기</DialogTitle>
+          <DialogTitle>{t("createGroup.title")}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" data-testid="form-create-group">
@@ -94,10 +96,10 @@ export default function CreateGroupModal({ children }: CreateGroupModalProps) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>그룹 이름</FormLabel>
+                  <FormLabel>{t("createGroup.name")}</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="예: 서울 라이더스" 
+                      placeholder={t("createGroup.namePlaceholder")} 
                       {...field} 
                       data-testid="input-group-name"
                     />
@@ -111,10 +113,10 @@ export default function CreateGroupModal({ children }: CreateGroupModalProps) {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>설명</FormLabel>
+                  <FormLabel>{t("createGroup.description")}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="그룹에 대한 간단한 설명을 입력하세요"
+                      placeholder={t("createGroup.descriptionPlaceholder")}
                       className="h-24"
                       {...field}
                       data-testid="input-group-description"
@@ -129,7 +131,7 @@ export default function CreateGroupModal({ children }: CreateGroupModalProps) {
               name="visibility"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>공개 설정</FormLabel>
+                  <FormLabel>{t("createGroup.visibility")}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger data-testid="select-group-visibility">
@@ -137,9 +139,9 @@ export default function CreateGroupModal({ children }: CreateGroupModalProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="public">공개 그룹</SelectItem>
-                      <SelectItem value="private">비공개 그룹</SelectItem>
-                      <SelectItem value="invite_only">초대만 가능</SelectItem>
+                      <SelectItem value="public">{t("groups.public")} Group</SelectItem>
+                      <SelectItem value="private">{t("groups.private")} Group</SelectItem>
+                      <SelectItem value="invite_only">{t("groups.inviteOnly")}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -154,7 +156,7 @@ export default function CreateGroupModal({ children }: CreateGroupModalProps) {
                 onClick={() => setOpen(false)}
                 data-testid="button-cancel-group"
               >
-                취소
+                {t("createGroup.cancel")}
               </Button>
               <Button
                 type="submit"
@@ -162,7 +164,7 @@ export default function CreateGroupModal({ children }: CreateGroupModalProps) {
                 disabled={createGroupMutation.isPending}
                 data-testid="button-submit-group"
               >
-                {createGroupMutation.isPending ? "생성 중..." : "그룹 만들기"}
+                {createGroupMutation.isPending ? t("createGroup.creating") : t("createGroup.create")}
               </Button>
             </div>
           </form>

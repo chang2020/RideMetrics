@@ -5,10 +5,13 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Link, useLocation } from "wouter";
 import { Activity, BarChart3, Users, Home } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useLanguage } from "@/lib/i18n";
+import LanguageToggle from "@/components/language-toggle";
 import type { User } from "@shared/schema";
 
 export default function Navigation() {
   const [location] = useLocation();
+  const { t } = useLanguage();
 
   const { data: user } = useQuery<User>({
     queryKey: ["/api/user"],
@@ -26,10 +29,10 @@ export default function Navigation() {
   });
 
   const navItems = [
-    { path: "/", label: "대시보드", icon: Home },
-    { path: "/groups", label: "그룹", icon: Users },
-    { path: "/activities", label: "활동", icon: Activity },
-    { path: "/stats", label: "통계", icon: BarChart3 },
+    { path: "/", label: t("nav.dashboard"), icon: Home },
+    { path: "/groups", label: t("nav.groups"), icon: Users },
+    { path: "/activities", label: t("nav.activities"), icon: Activity },
+    { path: "/stats", label: t("nav.stats"), icon: BarChart3 },
   ];
 
   return (
@@ -62,6 +65,7 @@ export default function Navigation() {
             </nav>
           </div>
           <div className="flex items-center space-x-4">
+            <LanguageToggle />
             <Button
               onClick={() => connectStravaMutation.mutate()}
               disabled={connectStravaMutation.isPending || user?.stravaConnected}
@@ -69,7 +73,7 @@ export default function Navigation() {
               data-testid="button-strava-connect"
             >
               <Activity className="h-4 w-4 mr-2" />
-              {user?.stravaConnected ? "Strava 연결됨" : "Strava 연결"}
+              {user?.stravaConnected ? t("strava.connected") : t("strava.connect")}
             </Button>
             <div className="flex items-center space-x-2">
               <Avatar className="h-8 w-8">
@@ -79,7 +83,7 @@ export default function Navigation() {
                 </AvatarFallback>
               </Avatar>
               <span className="text-sm font-medium text-gray-700" data-testid="text-username">
-                {user?.name || "Loading..."}
+                {user?.name || t("general.loading")}
               </span>
             </div>
           </div>
