@@ -102,7 +102,7 @@ export default function Dashboard() {
                         <h4 className="font-medium text-gray-900" data-testid="text-activity-title">{activity.title}</h4>
                         <p className="text-sm text-gray-600" data-testid="text-activity-details">
                           {formatDistanceToNow(new Date(activity.startTime), { addSuffix: true, locale: dateLocale })} • 
-                          {(activity.distance / 1000).toFixed(1)}km • 
+                          {convertDistance(activity.distance).toFixed(1)}{getDistanceLabel()} • 
                           {Math.floor(activity.duration / 60)}{language === "ko" ? "분" : "min"}
                         </p>
                       </div>

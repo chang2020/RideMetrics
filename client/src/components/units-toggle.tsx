@@ -11,14 +11,14 @@ export default function UnitsToggle() {
 
   return (
     <Button
-      variant="ghost"
+      variant="outline"
       size="sm"
       onClick={toggleUnit}
-      className="h-8 px-2 text-gray-600 hover:text-gray-900"
+      className="h-8 px-3 text-gray-700 border-gray-300 hover:bg-gray-100"
       data-testid="button-units-toggle"
     >
       <Ruler className="h-4 w-4 mr-1" />
-      {distanceUnit === "km" ? "miles" : "km"}
+      {distanceUnit}
     </Button>
   );
 }
