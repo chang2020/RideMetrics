@@ -197,15 +197,27 @@ export default function Login() {
               {/* Google OAuth Troubleshooting */}
               {oauthError === 'google' && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm">
-                  <div className="font-semibold text-red-800 mb-2">Google OAuth Issue</div>
+                  <div className="font-semibold text-red-800 mb-2">Google OAuth Setup Required</div>
                   <div className="text-red-700 mb-3">
-                    Please verify this exact redirect URI is saved in Google Cloud Console:
+                    Add these URIs to your Google Cloud Console OAuth 2.0 Client:
                   </div>
-                  <div className="bg-white border rounded p-2 font-mono text-xs break-all mb-2">
-                    https://51a6c92c-2283-41c5-9feb-d00d86fe7cc9-00-2gp7z56qmxm51.worf.replit.dev/api/auth/google/callback
+                  
+                  <div className="mb-3">
+                    <div className="text-red-600 text-xs font-medium mb-1">Authorized JavaScript origins:</div>
+                    <div className="bg-white border rounded p-2 font-mono text-xs break-all">
+                      https://51a6c92c-2283-41c5-9feb-d00d86fe7cc9-00-2gp7z56qmxm51.worf.replit.dev
+                    </div>
                   </div>
+                  
+                  <div className="mb-3">
+                    <div className="text-red-600 text-xs font-medium mb-1">Authorized redirect URIs:</div>
+                    <div className="bg-white border rounded p-2 font-mono text-xs break-all">
+                      https://51a6c92c-2283-41c5-9feb-d00d86fe7cc9-00-2gp7z56qmxm51.worf.replit.dev/api/auth/google/callback
+                    </div>
+                  </div>
+                  
                   <div className="text-red-600 text-xs">
-                    After adding the URI, it may take a few minutes to take effect. Try Strava in the meantime.
+                    Click SAVE in Google Cloud Console. Changes take 5-10 minutes to take effect.
                   </div>
                 </div>
               )}
