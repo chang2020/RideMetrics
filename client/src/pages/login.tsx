@@ -368,7 +368,17 @@ export default function Login() {
                   type="button" 
                   variant="outline" 
                   className="w-full"
-                  onClick={() => window.location.href = '/api/auth/strava'}
+                  onClick={async () => {
+                    try {
+                      const response = await fetch('/api/strava/auth');
+                      const data = await response.json();
+                      if (data.authUrl) {
+                        window.location.href = data.authUrl;
+                      }
+                    } catch (error) {
+                      console.error('Strava auth error:', error);
+                    }
+                  }}
                   data-testid="button-strava"
                 >
                   <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
