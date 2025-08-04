@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Link, useLocation } from "wouter";
-import { Activity, BarChart3, Users, Home } from "lucide-react";
+import { Activity, BarChart3, Users, Home, LogOut } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
 import LanguageToggle from "@/components/language-toggle";
@@ -42,6 +42,18 @@ export default function Navigation() {
     },
     onError: () => {
       toast({ title: "동기화 실패", description: "활동 동기화에 실패했습니다.", variant: "destructive" });
+    },
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: () => apiRequest("POST", "/api/logout"),
+    onSuccess: () => {
+      toast({ title: "로그아웃", description: "성공적으로 로그아웃되었습니다." });
+      // Refresh the page to reset state
+      window.location.reload();
+    },
+    onError: () => {
+      toast({ title: "로그아웃 실패", description: "로그아웃에 실패했습니다.", variant: "destructive" });
     },
   });
 
@@ -105,7 +117,7 @@ export default function Navigation() {
                 {connectStravaMutation.isPending ? "Connecting..." : t("strava.connect")}
               </Button>
             )}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               <Avatar className="h-8 w-8">
                 <AvatarImage src={user?.avatar || ""} />
                 <AvatarFallback data-testid="text-user-initials">
@@ -115,6 +127,16 @@ export default function Navigation() {
               <span className="text-sm font-medium text-gray-700" data-testid="text-username">
                 {user?.name || t("general.loading")}
               </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => logoutMutation.mutate()}
+                disabled={logoutMutation.isPending}
+                className="h-8 px-2 text-gray-600 hover:text-gray-900"
+                data-testid="button-logout"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </div>

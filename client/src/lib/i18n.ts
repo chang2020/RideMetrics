@@ -99,6 +99,10 @@ export const translations = {
     "general.noDescription": "No description available.",
     "general.newGroup": "New group",
     "general.admin": "Admin",
+    
+    // Auth
+    "auth.logout": "Logout",
+    "auth.loggedOut": "Logged out successfully",
   },
   ko: {
     // Navigation
@@ -180,5 +184,9 @@ export const translations = {
     "general.noDescription": "그룹 설명이 없습니다.",
     "general.newGroup": "새 그룹",
     "general.admin": "관리자",
+    
+    // Auth
+    "auth.logout": "로그아웃",
+    "auth.loggedOut": "성공적으로 로그아웃되었습니다",
   }
 };
