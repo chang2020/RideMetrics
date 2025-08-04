@@ -65,10 +65,11 @@ export default function Navigation() {
     onSuccess: () => {
       console.log("Logout successful");
       toast({ title: "로그아웃", description: "성공적으로 로그아웃되었습니다." });
-      // Refresh the page to reset state
+      // Clear query cache and redirect to login
+      queryClient.clear();
       setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+        window.location.href = "/";
+      }, 500);
     },
     onError: (error) => {
       console.error("Logout error:", error);

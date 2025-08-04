@@ -62,21 +62,7 @@ export class MemStorage implements IStorage {
     this.activities = new Map();
     this.groupActivities = new Map();
 
-    // Create a default user for demo purposes
-    const defaultUser: User = {
-      id: randomUUID(),
-      username: "demo_user",
-      email: "demo@example.com",
-      name: "Demo User",
-      avatar: null,
-      stravaConnected: false,
-      stravaId: null,
-      stravaAccessToken: null,
-      stravaRefreshToken: null,
-      stravaTokenExpiry: null,
-      createdAt: new Date(),
-    };
-    this.users.set(defaultUser.id, defaultUser);
+    // Don't create default user anymore - users must authenticate
   }
 
   async getUser(id: string): Promise<User | undefined> {

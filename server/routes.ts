@@ -5,11 +5,85 @@ import { insertGroupSchema, insertActivitySchema, insertGroupActivitySchema } fr
 import { stravaAPI } from "./strava-api";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Get current user (mock for now)
+  // Authentication routes
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      // For demo purposes, accept any email/password combination
+      // In production, you would verify against a database
+      const users = await storage.getUsers();
+      let user = users.find(u => u.email === email);
+      
+      if (!user) {
+        // Create user if doesn't exist (for demo)
+        const newUser = await storage.createUser({
+          username: email.split('@')[0],
+          email,
+          name: email.split('@')[0],
+          avatar: null,
+        });
+        user = newUser;
+      }
+      
+      // Store user session
+      req.session.userId = user.id;
+      res.json({ message: "Login successful", user });
+    } catch (error) {
+      res.status(500).json({ message: "Login failed" });
+    }
+  });
+
+  app.post("/api/auth/signup", async (req, res) => {
+    try {
+      const { username, email, name, password } = req.body;
+      // Check if user already exists
+      const users = await storage.getUsers();
+      const existingUser = users.find(u => u.email === email || u.username === username);
+      
+      if (existingUser) {
+        return res.status(400).json({ message: "User already exists" });
+      }
+      
+      const user = await storage.createUser({
+        username,
+        email,
+        name,
+        avatar: null,
+      });
+      
+      // Store user session
+      req.session.userId = user.id;
+      res.status(201).json({ message: "Account created successfully", user });
+    } catch (error) {
+      res.status(500).json({ message: "Signup failed" });
+    }
+  });
+
+  app.post("/api/auth/demo", async (req, res) => {
+    try {
+      const user = await storage.createUser({
+        username: "demo_user",
+        email: "demo@example.com",
+        name: "Demo User",
+        avatar: null,
+      });
+      
+      // Store user session
+      req.session.userId = user.id;
+      res.json({ message: "Demo account created", user });
+    } catch (error) {
+      res.status(500).json({ message: "Demo login failed" });
+    }
+  });
+
+  // Get current user
   app.get("/api/user", async (req, res) => {
     try {
-      const users = await storage.getUsers();
-      const user = users[0]; // Get first user as demo user
+      if (!req.session.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const user = await storage.getUser(req.session.userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -22,13 +96,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user groups
   app.get("/api/groups", async (req, res) => {
     try {
-      const users = await storage.getUsers();
-      const user = users[0];
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
+      if (!req.session.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
       }
       
-      const groups = await storage.getGroupsByUserId(user.id);
+      const groups = await storage.getGroupsByUserId(req.session.userId);
       res.json(groups);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
@@ -38,15 +110,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create group
   app.post("/api/groups", async (req, res) => {
     try {
-      const users = await storage.getUsers();
-      const user = users[0];
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
+      if (!req.session.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
       }
 
       const groupData = insertGroupSchema.parse({
         ...req.body,
-        ownerId: user.id,
+        ownerId: req.session.userId,
       });
       
       const group = await storage.createGroup(groupData);
@@ -92,13 +162,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user activities
   app.get("/api/activities", async (req, res) => {
     try {
-      const users = await storage.getUsers();
-      const user = users[0];
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
+      if (!req.session.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
       }
       
-      const activities = await storage.getActivitiesByUserId(user.id);
+      const activities = await storage.getActivitiesByUserId(req.session.userId);
       res.json(activities);
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
@@ -108,15 +176,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create activity
   app.post("/api/activities", async (req, res) => {
     try {
-      const users = await storage.getUsers();
-      const user = users[0];
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
+      if (!req.session.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
       }
 
       const activityData = insertActivitySchema.parse({
         ...req.body,
-        userId: user.id,
+        userId: req.session.userId,
       });
       
       const activity = await storage.createActivity(activityData);
@@ -129,13 +195,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user statistics
   app.get("/api/stats", async (req, res) => {
     try {
-      const users = await storage.getUsers();
-      const user = users[0];
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
+      if (!req.session.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
       }
       
-      const activities = await storage.getActivitiesByUserId(user.id);
+      const activities = await storage.getActivitiesByUserId(req.session.userId);
       const now = new Date();
       const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -204,13 +268,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const athlete = await stravaAPI.getAthlete(tokens.access_token);
 
       // Update user with Strava data
-      const users = await storage.getUsers();
-      const user = users[0];
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
+      if (!req.session.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
       }
 
-      await storage.updateUser(user.id, {
+      await storage.updateUser(req.session.userId, {
         stravaConnected: true,
         stravaId: athlete.id,
         stravaAccessToken: tokens.access_token,
@@ -243,8 +305,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Sync activities from Strava
   app.post("/api/strava/sync", async (req, res) => {
     try {
-      const users = await storage.getUsers();
-      const user = users[0];
+      if (!req.session.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      const user = await storage.getUser(req.session.userId);
       if (!user || !user.stravaConnected || !user.stravaAccessToken) {
         return res.status(400).json({ message: "Strava not connected" });
       }
@@ -285,8 +350,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Logout endpoint
   app.post("/api/logout", async (req, res) => {
     try {
-      // Clear all user data and reset to demo user
-      await storage.clearUserData();
+      // Clear session
+      req.session.destroy((err) => {
+        if (err) {
+          console.error("Session destroy error:", err);
+        }
+      });
+      
       res.json({ message: "Logged out successfully" });
     } catch (error) {
       console.error("Logout error:", error);
