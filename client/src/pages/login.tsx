@@ -408,16 +408,16 @@ export default function Login() {
                   Continue with Strava
                 </Button>
 
-                {/* Google OAuth - Testing mode */}
+                {/* Google OAuth - Setup Required */}
                 <Button 
                   type="button" 
                   variant="outline" 
-                  className="w-full relative"
-                  onClick={() => window.location.href = '/api/auth/google'}
+                  className="w-full relative opacity-75"
+                  onClick={() => setOauthError('google')}
                   data-testid="button-google"
                 >
-                  <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-xs px-1.5 py-0.5 rounded-full">
-                    Testing
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                    Setup Required
                   </span>
                   <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
