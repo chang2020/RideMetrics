@@ -31,13 +31,14 @@ type SignupFormData = z.infer<typeof signupSchema>;
 
 export default function Login() {
   const [isSignup, setIsSignup] = useState(false);
+  const [oauthError, setOauthError] = useState<string | null>(null);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { t } = useLanguage();
 
   // Check for OAuth errors in URL params
   const urlParams = new URLSearchParams(window.location.search);
-  const oauthError = urlParams.get('error');
+  const urlOauthError = urlParams.get('error');
   const stravaError = urlParams.get('strava');
 
   const loginForm = useForm<LoginFormData>({
@@ -195,7 +196,7 @@ export default function Login() {
               </div>
 
               {/* Google OAuth Troubleshooting */}
-              {oauthError === 'google' && (
+              {(oauthError === 'google' || urlOauthError) && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm">
                   <div className="font-semibold text-red-800 mb-2">Google OAuth Setup Required</div>
                   <div className="text-red-700 mb-3">
@@ -408,16 +409,16 @@ export default function Login() {
                   Continue with Strava
                 </Button>
 
-                {/* Google OAuth - Setup Required */}
+                {/* Google OAuth - Now Ready to Test */}
                 <Button 
                   type="button" 
                   variant="outline" 
-                  className="w-full relative opacity-75"
-                  onClick={() => setOauthError('google')}
+                  className="w-full relative"
+                  onClick={() => window.location.href = '/api/auth/google'}
                   data-testid="button-google"
                 >
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
-                    Setup Required
+                  <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                    Ready
                   </span>
                   <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
