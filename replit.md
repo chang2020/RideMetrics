@@ -17,7 +17,7 @@ Preferred communication style: Simple, everyday language.
 - Fixed type errors and integration issues with new schema
 - Session-based authentication system with Passport.js
 - **Strava OAuth**: Fully functional with automatic user account creation
-- **Google OAuth**: Redirect URI configuration required in Google Cloud Console
+- **Google OAuth**: Fully functional with redirect URI configured in Google Cloud Console
 - OAuth redirect URIs: 
   - Google: `https://51a6c92c-2283-41c5-9feb-d00d86fe7cc9-00-2gp7z56qmxm51.worf.replit.dev/api/auth/google/callback`
   - Strava: `https://workspace.chang2020.repl.co/api/strava/callback`

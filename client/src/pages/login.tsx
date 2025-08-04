@@ -183,28 +183,15 @@ export default function Login() {
             </CardHeader>
             
             <CardContent className="space-y-4">
-              {/* Quick Start Guide */}
+              {/* Authentication Options Guide */}
               <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4 text-sm">
-                <div className="font-semibold text-green-800 mb-2">🚀 Quick Start</div>
+                <div className="font-semibold text-green-800 mb-2">Choose Your Sign-In Method</div>
                 <div className="text-green-700 mb-2">
-                  Use <strong>Strava</strong> to sign in instantly - it's already configured and ready to go!
+                  <strong>Strava:</strong> Perfect for cyclists - imports your activities automatically<br/>
+                  <strong>Google:</strong> Quick and secure sign-in with your Google account
                 </div>
                 <div className="text-green-600 text-xs">
-                  Connect your cycling activities and join the community right away.
-                </div>
-              </div>
-
-              {/* Google OAuth Configuration Message */}
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm">
-                <div className="font-semibold text-amber-800 mb-2">Google OAuth Setup</div>
-                <div className="text-amber-700 mb-3">
-                  To enable Google sign-in, add this redirect URI to your Google Cloud Console:
-                </div>
-                <div className="bg-white border rounded p-2 font-mono text-xs break-all">
-                  https://51a6c92c-2283-41c5-9feb-d00d86fe7cc9-00-2gp7z56qmxm51.worf.replit.dev/api/auth/google/callback
-                </div>
-                <div className="text-amber-600 text-xs mt-2">
-                  Go to Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client IDs
+                  Both options create your account instantly and get you started right away.
                 </div>
               </div>
               {stravaError === 'error' && (
@@ -394,16 +381,16 @@ export default function Login() {
                   Continue with Strava
                 </Button>
 
-                {/* Google with disabled state and clear messaging */}
+                {/* Google OAuth - Now enabled */}
                 <Button 
                   type="button" 
                   variant="outline" 
-                  className="w-full relative opacity-60 cursor-not-allowed"
-                  disabled
+                  className="w-full relative"
+                  onClick={() => window.location.href = '/api/auth/google'}
                   data-testid="button-google"
                 >
-                  <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-xs px-1.5 py-0.5 rounded-full">
-                    Config Required
+                  <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                    Ready
                   </span>
                   <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
