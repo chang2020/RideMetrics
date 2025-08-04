@@ -183,18 +183,29 @@ export default function Login() {
             </CardHeader>
             
             <CardContent className="space-y-4">
-              {/* OAuth Error Messages */}
+              {/* OAuth Status Messages */}
               {oauthError === 'google' && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
-                  <strong>Google OAuth Setup Required:</strong> Add this redirect URI to Google Cloud Console:<br/>
-                  <code className="text-xs break-all bg-gray-100 p-1 rounded">
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm">
+                  <div className="font-semibold text-amber-800 mb-2">Google OAuth Configuration Needed</div>
+                  <div className="text-amber-700 mb-3">
+                    To enable Google sign-in, add this redirect URI to your Google Cloud Console:
+                  </div>
+                  <div className="bg-white border rounded p-2 font-mono text-xs break-all">
                     https://51a6c92c-2283-41c5-9feb-d00d86fe7cc9-00-2gp7z56qmxm51.worf.replit.dev/api/auth/google/callback
-                  </code>
+                  </div>
+                  <div className="text-amber-600 text-xs mt-2">
+                    Go to Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client IDs
+                  </div>
                 </div>
               )}
               {stravaError === 'error' && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
                   <strong>Strava OAuth Error:</strong> There was an issue connecting to Strava. Please try again.
+                </div>
+              )}
+              {stravaError === 'connected' && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-700">
+                  <strong>Success!</strong> Your Strava account has been connected successfully.
                 </div>
               )}
               {!isSignup ? (
@@ -351,10 +362,15 @@ export default function Login() {
                 <Button 
                   type="button" 
                   variant="outline" 
-                  className="w-full"
+                  className="w-full relative"
                   onClick={() => window.location.href = '/api/auth/google'}
                   data-testid="button-google"
                 >
+                  {!oauthError && (
+                    <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                      Setup Required
+                    </span>
+                  )}
                   <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                     <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
