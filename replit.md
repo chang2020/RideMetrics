@@ -10,13 +10,20 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### OAuth Implementation (2025-08-04)
-- Fixed OAuth URL generation to use correct Replit domain
-- Resolved API response parsing issues
-- Added proper error handling and debugging logs
-- OAuth redirect URI: `https://workspace.chang2020.repl.co/api/strava/callback`
+### OAuth Authentication System (2025-08-04)
+- Implemented Google and Strava OAuth authentication providers
+- Updated database schema with provider field and OAuth-specific columns
+- Added OAuth buttons to login page with proper branding
+- Fixed type errors and integration issues with new schema
+- Session-based authentication system with Passport.js
+- OAuth redirect URIs: 
+  - Google: `https://51a6c92c-2283-41c5-9feb-d00d86fe7cc9-00-2gp7z56qmxm51.worf.replit.dev/api/auth/google/callback`
+  - Strava: `https://workspace.chang2020.repl.co/api/strava/callback`
 
-### Logout Functionality (2025-08-04)  
+### Previous Changes
+- Fixed OAuth URL generation to use correct Replit domain
+- Resolved API response parsing issues  
+- Added proper error handling and debugging logs
 - Implemented complete user data reset on logout
 - Added proper session management
 - Fixed mutation response handling
