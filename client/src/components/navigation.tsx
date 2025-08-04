@@ -19,7 +19,10 @@ export default function Navigation() {
   });
 
   const connectStravaMutation = useMutation({
-    mutationFn: () => apiRequest("POST", "/api/strava/connect"),
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/strava/connect");
+      return response.json();
+    },
     onSuccess: (data: any) => {
       console.log("Strava connect response:", data);
       if (data.authUrl) {
@@ -37,7 +40,10 @@ export default function Navigation() {
   });
 
   const syncStravaMutation = useMutation({
-    mutationFn: () => apiRequest("POST", "/api/strava/sync"),
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/strava/sync");
+      return response.json();
+    },
     onSuccess: (data: any) => {
       toast({ 
         title: "동기화 완료", 
@@ -52,7 +58,10 @@ export default function Navigation() {
   });
 
   const logoutMutation = useMutation({
-    mutationFn: () => apiRequest("POST", "/api/logout"),
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/logout");
+      return response.json();
+    },
     onSuccess: () => {
       console.log("Logout successful");
       toast({ title: "로그아웃", description: "성공적으로 로그아웃되었습니다." });
