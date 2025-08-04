@@ -21,12 +21,17 @@ export default function Navigation() {
   const connectStravaMutation = useMutation({
     mutationFn: () => apiRequest("POST", "/api/strava/connect"),
     onSuccess: (data: any) => {
+      console.log("Strava connect response:", data);
       if (data.authUrl) {
         // 현재 창에서 OAuth 진행
+        console.log("Redirecting to:", data.authUrl);
         window.location.href = data.authUrl;
+      } else {
+        toast({ title: "오류", description: "OAuth URL을 받지 못했습니다.", variant: "destructive" });
       }
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Strava connect error:", error);
       toast({ title: "연결 실패", description: "Strava 연결에 실패했습니다.", variant: "destructive" });
     },
   });
@@ -49,11 +54,15 @@ export default function Navigation() {
   const logoutMutation = useMutation({
     mutationFn: () => apiRequest("POST", "/api/logout"),
     onSuccess: () => {
+      console.log("Logout successful");
       toast({ title: "로그아웃", description: "성공적으로 로그아웃되었습니다." });
       // Refresh the page to reset state
-      window.location.reload();
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Logout error:", error);
       toast({ title: "로그아웃 실패", description: "로그아웃에 실패했습니다.", variant: "destructive" });
     },
   });

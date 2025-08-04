@@ -232,6 +232,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/strava/connect", async (req, res) => {
     try {
       const authUrl = stravaAPI.getAuthorizationUrl();
+      console.log("Generated Strava auth URL:", authUrl);
       res.json({ authUrl });
     } catch (error) {
       console.error("Strava connect error:", error);
