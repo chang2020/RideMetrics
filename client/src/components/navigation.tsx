@@ -116,7 +116,7 @@ export default function Navigation() {
           <div className="flex items-center space-x-4">
             <UnitsToggle />
             <LanguageToggle />
-            {user?.stravaConnected ? (
+            {user?.stravaAccessToken ? (
               <Button
                 onClick={() => syncStravaMutation.mutate()}
                 disabled={syncStravaMutation.isPending}

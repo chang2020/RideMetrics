@@ -3,8 +3,11 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertGroupSchema, insertActivitySchema, insertGroupActivitySchema } from "@shared/schema";
 import { stravaAPI } from "./strava-api";
+import { setupOAuth } from "./oauth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup OAuth authentication
+  setupOAuth(app);
   // Authentication routes
   app.post("/api/auth/login", async (req, res) => {
     try {
@@ -273,7 +276,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       await storage.updateUser(req.session.userId, {
-        stravaConnected: true,
+        provider: "strava",
         stravaId: athlete.id,
         stravaAccessToken: tokens.access_token,
         stravaRefreshToken: tokens.refresh_token,
@@ -310,7 +313,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const user = await storage.getUser(req.session.userId);
-      if (!user || !user.stravaConnected || !user.stravaAccessToken) {
+      if (!user || !user.stravaAccessToken) {
         return res.status(400).json({ message: "Strava not connected" });
       }
 
