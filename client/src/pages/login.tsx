@@ -183,21 +183,30 @@ export default function Login() {
             </CardHeader>
             
             <CardContent className="space-y-4">
-              {/* OAuth Status Messages */}
-              {oauthError === 'google' && (
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm">
-                  <div className="font-semibold text-amber-800 mb-2">Google OAuth Configuration Needed</div>
-                  <div className="text-amber-700 mb-3">
-                    To enable Google sign-in, add this redirect URI to your Google Cloud Console:
-                  </div>
-                  <div className="bg-white border rounded p-2 font-mono text-xs break-all">
-                    https://51a6c92c-2283-41c5-9feb-d00d86fe7cc9-00-2gp7z56qmxm51.worf.replit.dev/api/auth/google/callback
-                  </div>
-                  <div className="text-amber-600 text-xs mt-2">
-                    Go to Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client IDs
-                  </div>
+              {/* Quick Start Guide */}
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4 text-sm">
+                <div className="font-semibold text-green-800 mb-2">🚀 Quick Start</div>
+                <div className="text-green-700 mb-2">
+                  Use <strong>Strava</strong> to sign in instantly - it's already configured and ready to go!
                 </div>
-              )}
+                <div className="text-green-600 text-xs">
+                  Connect your cycling activities and join the community right away.
+                </div>
+              </div>
+
+              {/* Google OAuth Configuration Message */}
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm">
+                <div className="font-semibold text-amber-800 mb-2">Google OAuth Setup</div>
+                <div className="text-amber-700 mb-3">
+                  To enable Google sign-in, add this redirect URI to your Google Cloud Console:
+                </div>
+                <div className="bg-white border rounded p-2 font-mono text-xs break-all">
+                  https://51a6c92c-2283-41c5-9feb-d00d86fe7cc9-00-2gp7z56qmxm51.worf.replit.dev/api/auth/google/callback
+                </div>
+                <div className="text-amber-600 text-xs mt-2">
+                  Go to Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client IDs
+                </div>
+              </div>
               {stravaError === 'error' && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
                   <strong>Strava OAuth Error:</strong> There was an issue connecting to Strava. Please try again.
@@ -359,31 +368,10 @@ export default function Login() {
               
               {/* OAuth buttons */}
               <div className="space-y-3">
+                {/* Highlight Strava as the working option */}
                 <Button 
                   type="button" 
-                  variant="outline" 
-                  className="w-full relative"
-                  onClick={() => window.location.href = '/api/auth/google'}
-                  data-testid="button-google"
-                >
-                  {!oauthError && (
-                    <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-xs px-1.5 py-0.5 rounded-full">
-                      Setup Required
-                    </span>
-                  )}
-                  <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                  </svg>
-                  Continue with Google
-                </Button>
-                
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  className="w-full"
+                  className="w-full bg-strava-orange hover:bg-strava-orange/90 text-white relative"
                   onClick={async () => {
                     try {
                       const response = await fetch('/api/strava/auth');
@@ -397,10 +385,33 @@ export default function Login() {
                   }}
                   data-testid="button-strava"
                 >
+                  <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                    Ready
+                  </span>
                   <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.172"/>
+                    <path fill="currentColor" d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.599h4.172L10.463 0l-7 13.828h4.916"/>
                   </svg>
                   Continue with Strava
+                </Button>
+
+                {/* Google with disabled state and clear messaging */}
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full relative opacity-60 cursor-not-allowed"
+                  disabled
+                  data-testid="button-google"
+                >
+                  <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                    Config Required
+                  </span>
+                  <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                  </svg>
+                  Continue with Google
                 </Button>
                 
                 <Button 
