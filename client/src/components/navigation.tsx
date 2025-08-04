@@ -128,14 +128,16 @@ export default function Navigation() {
                 {user?.name || t("general.loading")}
               </span>
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 onClick={() => logoutMutation.mutate()}
                 disabled={logoutMutation.isPending}
-                className="h-8 px-2 text-gray-600 hover:text-gray-900"
+                className="h-8 px-3 text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
                 data-testid="button-logout"
+                title={t("auth.logout")}
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-4 w-4 mr-1" />
+                {t("auth.logout")}
               </Button>
             </div>
           </div>
