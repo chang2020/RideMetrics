@@ -35,6 +35,11 @@ export default function Login() {
   const [, setLocation] = useLocation();
   const { t } = useLanguage();
 
+  // Check for OAuth errors in URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  const oauthError = urlParams.get('error');
+  const stravaError = urlParams.get('strava');
+
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -178,6 +183,20 @@ export default function Login() {
             </CardHeader>
             
             <CardContent className="space-y-4">
+              {/* OAuth Error Messages */}
+              {oauthError === 'google' && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+                  <strong>Google OAuth Setup Required:</strong> Add this redirect URI to Google Cloud Console:<br/>
+                  <code className="text-xs break-all bg-gray-100 p-1 rounded">
+                    https://51a6c92c-2283-41c5-9feb-d00d86fe7cc9-00-2gp7z56qmxm51.worf.replit.dev/api/auth/google/callback
+                  </code>
+                </div>
+              )}
+              {stravaError === 'error' && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+                  <strong>Strava OAuth Error:</strong> There was an issue connecting to Strava. Please try again.
+                </div>
+              )}
               {!isSignup ? (
                 <Form {...loginForm}>
                   <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
