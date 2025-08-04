@@ -37,7 +37,21 @@ export class StravaAPI {
   constructor() {
     this.clientId = process.env.STRAVA_CLIENT_ID || "";
     this.clientSecret = process.env.STRAVA_CLIENT_SECRET || "";
-    this.redirectUri = `${process.env.REPLIT_DOMAIN || 'http://localhost:5000'}/api/strava/callback`;
+    
+    // Use the correct Replit domain format - check both possible env vars
+    let domain = 'http://localhost:5000';
+    if (process.env.REPLIT_DOMAIN) {
+      domain = `https://${process.env.REPLIT_DOMAIN}`;
+    } else if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+      domain = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
+    }
+    this.redirectUri = `${domain}/api/strava/callback`;
+    
+    console.log('Strava OAuth Config:', {
+      clientId: this.clientId,
+      redirectUri: this.redirectUri,
+      hasSecret: !!this.clientSecret
+    });
   }
 
   getAuthorizationUrl(): string {

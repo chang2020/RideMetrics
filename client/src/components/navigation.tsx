@@ -22,7 +22,8 @@ export default function Navigation() {
     mutationFn: () => apiRequest("POST", "/api/strava/connect"),
     onSuccess: (data: any) => {
       if (data.authUrl) {
-        window.open(data.authUrl, '_blank', 'width=600,height=600');
+        // 현재 창에서 OAuth 진행
+        window.location.href = data.authUrl;
       }
     },
     onError: () => {
