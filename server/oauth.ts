@@ -23,10 +23,19 @@ export function setupOAuth(app: Express) {
 
   // Google OAuth Strategy
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    const domain = process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000';
+    const callbackURL = `https://${domain}/api/auth/google/callback`;
+    
+    console.log("Google OAuth Config:", {
+      clientId: process.env.GOOGLE_CLIENT_ID?.substring(0, 10) + "...",
+      callbackURL,
+      hasSecret: !!process.env.GOOGLE_CLIENT_SECRET
+    });
+    
     passport.use(new GoogleStrategy({
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/api/auth/google/callback",
+      callbackURL,
       scope: ['profile', 'email']
     },
     async (accessToken: string, refreshToken: string, profile: any, done: any) => {
