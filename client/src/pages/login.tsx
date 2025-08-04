@@ -183,17 +183,32 @@ export default function Login() {
             </CardHeader>
             
             <CardContent className="space-y-4">
-              {/* Authentication Options Guide */}
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4 text-sm">
-                <div className="font-semibold text-green-800 mb-2">Choose Your Sign-In Method</div>
-                <div className="text-green-700 mb-2">
-                  <strong>Strava:</strong> Perfect for cyclists - imports your activities automatically<br/>
-                  <strong>Google:</strong> Quick and secure sign-in with your Google account
+              {/* Recommended Sign-in */}
+              <div className="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg p-4 text-sm">
+                <div className="font-semibold text-orange-800 mb-2">🚴‍♂️ Recommended for Cyclists</div>
+                <div className="text-orange-700 mb-2">
+                  Sign in with <strong>Strava</strong> to automatically import your cycling activities, connect with the community, and get personalized insights.
                 </div>
-                <div className="text-green-600 text-xs">
-                  Both options create your account instantly and get you started right away.
+                <div className="text-orange-600 text-xs">
+                  Instantly access your ride data and join cycling groups in your area.
                 </div>
               </div>
+
+              {/* Google OAuth Troubleshooting */}
+              {oauthError === 'google' && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm">
+                  <div className="font-semibold text-red-800 mb-2">Google OAuth Issue</div>
+                  <div className="text-red-700 mb-3">
+                    Please verify this exact redirect URI is saved in Google Cloud Console:
+                  </div>
+                  <div className="bg-white border rounded p-2 font-mono text-xs break-all mb-2">
+                    https://51a6c92c-2283-41c5-9feb-d00d86fe7cc9-00-2gp7z56qmxm51.worf.replit.dev/api/auth/google/callback
+                  </div>
+                  <div className="text-red-600 text-xs">
+                    After adding the URI, it may take a few minutes to take effect. Try Strava in the meantime.
+                  </div>
+                </div>
+              )}
               {stravaError === 'error' && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
                   <strong>Strava OAuth Error:</strong> There was an issue connecting to Strava. Please try again.
@@ -381,7 +396,7 @@ export default function Login() {
                   Continue with Strava
                 </Button>
 
-                {/* Google OAuth - Now enabled */}
+                {/* Google OAuth - Testing mode */}
                 <Button 
                   type="button" 
                   variant="outline" 
@@ -389,8 +404,8 @@ export default function Login() {
                   onClick={() => window.location.href = '/api/auth/google'}
                   data-testid="button-google"
                 >
-                  <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">
-                    Ready
+                  <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                    Testing
                   </span>
                   <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
