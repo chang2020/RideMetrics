@@ -8,6 +8,19 @@ CycleConnect is a full-stack web application for cycling enthusiasts that enable
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+### OAuth Implementation (2025-08-04)
+- Fixed OAuth URL generation to use correct Replit domain
+- Resolved API response parsing issues
+- Added proper error handling and debugging logs
+- OAuth redirect URI: `https://workspace.chang2020.repl.co/api/strava/callback`
+
+### Logout Functionality (2025-08-04)  
+- Implemented complete user data reset on logout
+- Added proper session management
+- Fixed mutation response handling
+
 ## System Architecture
 
 ### Frontend Architecture
