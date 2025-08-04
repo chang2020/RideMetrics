@@ -195,12 +195,12 @@ export default function Login() {
                 </div>
               </div>
 
-              {/* Google OAuth Troubleshooting */}
-              {(oauthError === 'google' || urlOauthError) && (
+              {/* Google OAuth Error Messages */}
+              {(oauthError === 'google' || urlOauthError === 'google') && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm">
-                  <div className="font-semibold text-red-800 mb-2">Google OAuth Setup Required</div>
+                  <div className="font-semibold text-red-800 mb-2">Google OAuth Configuration Issue</div>
                   <div className="text-red-700 mb-3">
-                    Add these URIs to your Google Cloud Console OAuth 2.0 Client:
+                    Please verify these URIs are correctly saved in Google Cloud Console:
                   </div>
                   
                   <div className="mb-3">
@@ -218,7 +218,25 @@ export default function Login() {
                   </div>
                   
                   <div className="text-red-600 text-xs">
-                    Click SAVE in Google Cloud Console. Changes take 5-10 minutes to take effect.
+                    After making changes, click SAVE and wait 5-10 minutes for Google to update.
+                  </div>
+                </div>
+              )}
+              
+              {urlOauthError === 'google_denied' && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm">
+                  <div className="font-semibold text-yellow-800 mb-2">Authentication Cancelled</div>
+                  <div className="text-yellow-700">
+                    You cancelled the Google sign-in process. Click "Choose Google Account" again to try signing in.
+                  </div>
+                </div>
+              )}
+              
+              {urlOauthError === 'google_auth_failed' && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm">
+                  <div className="font-semibold text-red-800 mb-2">Google Authentication Failed</div>
+                  <div className="text-red-700">
+                    There was an issue with Google authentication. Please try again or use Strava authentication instead.
                   </div>
                 </div>
               )}

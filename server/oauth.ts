@@ -85,12 +85,15 @@ export function setupOAuth(app: Express) {
     
     // Check for OAuth errors first
     if (req.query.error) {
-      console.error("Google OAuth error:", req.query.error);
+      console.error("Google OAuth error:", req.query.error, "Description:", req.query.error_description);
+      if (req.query.error === 'access_denied') {
+        return res.redirect("/login?error=google_denied");
+      }
       return res.redirect("/login?error=google");
     }
     
     passport.authenticate("google", { 
-      failureRedirect: "/login?error=google",
+      failureRedirect: "/login?error=google_auth_failed",
       successRedirect: "/dashboard"
     })(req, res, next);
   });
