@@ -72,23 +72,22 @@ export function setupOAuth(app: Express) {
   }
 
   // OAuth routes
-  app.get("/api/auth/google", 
-    passport.authenticate("google", { scope: ["profile", "email"] })
-  );
+  app.get("/api/auth/google", (req, res, next) => {
+    console.log("Google OAuth initiated");
+    passport.authenticate("google", { scope: ["profile", "email"] })(req, res, next);
+  });
 
-  app.get("/api/auth/google/callback",
-    passport.authenticate("google", { failureRedirect: "/login?error=google" }),
-    (req, res) => {
-      // Store user in session
-      if (req.user) {
-        (req.session as any).userId = (req.user as any).id;
-      }
-      res.redirect("/dashboard");
-    }
-  );
+  app.get("/api/auth/google/callback", (req, res, next) => {
+    console.log("Google OAuth callback received:", req.query);
+    passport.authenticate("google", { 
+      failureRedirect: "/login?error=google",
+      successRedirect: "/dashboard"
+    })(req, res, next);
+  });
 
   // Strava OAuth (redirect to existing Strava implementation)
   app.get("/api/auth/strava", (req, res) => {
+    console.log("Strava OAuth initiated, redirecting to /api/strava/auth");
     res.redirect("/api/strava/auth");
   });
 }

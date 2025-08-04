@@ -27,6 +27,8 @@ interface StravaAthlete {
   city: string;
   state: string;
   country: string;
+  username?: string;
+  email?: string;
 }
 
 export class StravaAPI {

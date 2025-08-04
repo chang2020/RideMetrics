@@ -259,37 +259,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Handle Strava OAuth callback
   app.get("/api/strava/callback", async (req, res) => {
     try {
-      const { code } = req.query;
+      const { code, error } = req.query;
+      console.log("Strava callback received:", { code: !!code, error });
+      
+      if (error) {
+        console.error("Strava OAuth error:", error);
+        return res.redirect('/login?strava=error');
+      }
+      
       if (!code || typeof code !== 'string') {
-        return res.status(400).json({ message: "Missing authorization code" });
+        console.error("Missing authorization code");
+        return res.redirect('/login?strava=error');
       }
 
       // Exchange code for tokens
       const tokens = await stravaAPI.exchangeCodeForTokens(code);
+      console.log("Strava token exchange successful");
       
       // Get athlete info
       const athlete = await stravaAPI.getAthlete(tokens.access_token);
+      console.log("Strava athlete data received:", athlete.id);
 
-      // Update user with Strava data
-      if (!req.session.userId) {
-        return res.status(401).json({ message: "Not authenticated" });
+      // Find existing user by Strava ID or email
+      let user = await storage.getUserByStravaId(athlete.id);
+      
+      if (!user) {
+        // Try to find by email if available (email is optional for Strava athletes)
+        const email = (athlete as any).email || `${athlete.firstname?.toLowerCase()}.${athlete.lastname?.toLowerCase()}@strava.local`;
+        user = await storage.getUserByEmail(email);
       }
 
-      await storage.updateUser(req.session.userId, {
-        provider: "strava",
-        stravaId: athlete.id,
-        stravaAccessToken: tokens.access_token,
-        stravaRefreshToken: tokens.refresh_token,
-        stravaTokenExpiry: tokens.expires_at,
-        name: `${athlete.firstname} ${athlete.lastname}`,
-        avatar: athlete.profile
-      });
+      if (user) {
+        // Update existing user with Strava data
+        user = await storage.updateUser(user.id, {
+          provider: "strava",
+          stravaId: athlete.id,
+          stravaAccessToken: tokens.access_token,
+          stravaRefreshToken: tokens.refresh_token,
+          stravaTokenExpiry: tokens.expires_at,
+          name: `${athlete.firstname} ${athlete.lastname}`.trim() || user.name,
+          avatar: athlete.profile || user.avatar
+        });
+      } else {
+        // Create new user from Strava data
+        const email = (athlete as any).email || `${athlete.firstname?.toLowerCase()}.${athlete.lastname?.toLowerCase()}@strava.local`;
+        user = await storage.createUser({
+          email,
+          name: `${athlete.firstname} ${athlete.lastname}`.trim(),
+          username: (athlete as any).username || `${athlete.firstname}${athlete.lastname}`.toLowerCase(),
+          avatar: athlete.profile || null,
+          provider: "strava",
+          stravaId: athlete.id,
+          stravaAccessToken: tokens.access_token,
+          stravaRefreshToken: tokens.refresh_token,
+          stravaTokenExpiry: tokens.expires_at,
+        });
+      }
+
+      // Set user session
+      req.session.userId = user!.id;
+      console.log("User session set:", user!.id);
 
       // Redirect to dashboard
-      res.redirect('/?strava=connected');
+      res.redirect('/dashboard');
     } catch (error) {
       console.error("Strava callback error:", error);
-      res.redirect('/?strava=error');
+      res.redirect('/login?strava=error');
     }
   });
 
