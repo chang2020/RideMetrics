@@ -3,13 +3,24 @@ import { pgTable, text, varchar, timestamp, integer, boolean } from "drizzle-orm
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Session storage table for authentication
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: text("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  }
+);
+
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  username: text("username").notNull().unique(),
+  username: text("username").unique(),
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
   avatar: text("avatar"),
-  stravaConnected: boolean("strava_connected").default(false),
+  provider: text("provider").notNull().default("local"), // local, google, strava
+  googleId: text("google_id"),
   stravaId: integer("strava_id"),
   stravaAccessToken: text("strava_access_token"),
   stravaRefreshToken: text("strava_refresh_token"),

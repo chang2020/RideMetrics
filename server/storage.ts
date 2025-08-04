@@ -18,6 +18,7 @@ export interface IStorage {
   getUsers(): Promise<User[]>;
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByStravaId(stravaId: number): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: string, user: Partial<InsertUser>): Promise<User | undefined>;
   deleteUser(id: string): Promise<boolean>;
@@ -81,12 +82,18 @@ export class MemStorage implements IStorage {
     return Array.from(this.users.values()).find(user => user.email === email);
   }
 
+  async getUserByStravaId(stravaId: number): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => user.stravaId === stravaId);
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
     const user: User = { 
       ...insertUser,
+      username: insertUser.username || insertUser.email.split('@')[0],
       avatar: insertUser.avatar || null,
-      stravaConnected: insertUser.stravaConnected || false,
+      provider: insertUser.provider || "local",
+      googleId: insertUser.googleId || null,
       stravaId: insertUser.stravaId || null,
       stravaAccessToken: insertUser.stravaAccessToken || null,
       stravaRefreshToken: insertUser.stravaRefreshToken || null,
