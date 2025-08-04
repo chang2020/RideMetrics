@@ -284,10 +284,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Logout endpoint
   app.post("/api/logout", async (req, res) => {
     try {
-      // In a real app, this would clear session/token
-      // For now, we'll just return success
+      // Clear all user data and reset to demo user
+      await storage.clearUserData();
       res.json({ message: "Logged out successfully" });
     } catch (error) {
+      console.error("Logout error:", error);
       res.status(500).json({ message: "Logout failed" });
     }
   });

@@ -10,6 +10,8 @@ import { formatDistanceToNow } from "date-fns";
 import { ko, enUS } from "date-fns/locale";
 import { useLanguage } from "@/lib/i18n";
 import { useUnits } from "@/lib/units";
+import { toast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 import type { User, Group, Activity } from "@shared/schema";
 
 interface StatsData {
@@ -32,6 +34,29 @@ export default function Dashboard() {
   const { data: activities = [] } = useQuery<Activity[]>({ queryKey: ["/api/activities"] });
 
   const dateLocale = language === "ko" ? ko : enUS;
+
+  // Handle OAuth callback results
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const stravaResult = urlParams.get('strava');
+    
+    if (stravaResult === 'connected') {
+      toast({
+        title: "Strava 연결 성공",
+        description: "Strava 계정이 성공적으로 연결되었습니다!",
+      });
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (stravaResult === 'error') {
+      toast({
+        title: "Strava 연결 실패",
+        description: "Strava 연결 중 오류가 발생했습니다. 다시 시도해주세요.",
+        variant: "destructive"
+      });
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

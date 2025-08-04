@@ -20,6 +20,8 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: string, user: Partial<InsertUser>): Promise<User | undefined>;
+  deleteUser(id: string): Promise<boolean>;
+  clearUserData(): Promise<void>;
 
   // Group methods
   getGroup(id: string): Promise<Group | undefined>;
@@ -68,7 +70,10 @@ export class MemStorage implements IStorage {
       name: "Demo User",
       avatar: null,
       stravaConnected: false,
+      stravaId: null,
       stravaAccessToken: null,
+      stravaRefreshToken: null,
+      stravaTokenExpiry: null,
       createdAt: new Date(),
     };
     this.users.set(defaultUser.id, defaultUser);
@@ -96,7 +101,10 @@ export class MemStorage implements IStorage {
       ...insertUser,
       avatar: insertUser.avatar || null,
       stravaConnected: insertUser.stravaConnected || false,
+      stravaId: insertUser.stravaId || null,
       stravaAccessToken: insertUser.stravaAccessToken || null,
+      stravaRefreshToken: insertUser.stravaRefreshToken || null,
+      stravaTokenExpiry: insertUser.stravaTokenExpiry || null,
       id, 
       createdAt: new Date() 
     };
@@ -111,6 +119,34 @@ export class MemStorage implements IStorage {
     const updatedUser = { ...user, ...updateData };
     this.users.set(id, updatedUser);
     return updatedUser;
+  }
+
+  async deleteUser(id: string): Promise<boolean> {
+    return this.users.delete(id);
+  }
+
+  async clearUserData(): Promise<void> {
+    this.users.clear();
+    this.groups.clear();
+    this.groupMemberships.clear();
+    this.activities.clear();
+    this.groupActivities.clear();
+    
+    // Recreate demo user
+    const defaultUser: User = {
+      id: randomUUID(),
+      username: "demo_user",
+      email: "demo@example.com",
+      name: "Demo User",
+      avatar: null,
+      stravaConnected: false,
+      stravaId: null,
+      stravaAccessToken: null,
+      stravaRefreshToken: null,
+      stravaTokenExpiry: null,
+      createdAt: new Date(),
+    };
+    this.users.set(defaultUser.id, defaultUser);
   }
 
   async getGroup(id: string): Promise<Group | undefined> {
