@@ -74,7 +74,10 @@ export function setupOAuth(app: Express) {
   // OAuth routes
   app.get("/api/auth/google", (req, res, next) => {
     console.log("Google OAuth initiated");
-    passport.authenticate("google", { scope: ["profile", "email"] })(req, res, next);
+    passport.authenticate("google", { 
+      scope: ["profile", "email"],
+      prompt: "select_account"
+    })(req, res, next);
   });
 
   app.get("/api/auth/google/callback", (req, res, next) => {
